@@ -1,9 +1,12 @@
 import arcade
+import random 
+import os
+
 
 WIDTH = 1000
 HEIGHT = 600
 MOVEMENT_SPEED = 3
-PLAYER = "player(female).png" 
+PLAYER = "player(male).png" 
 #Player(male.png)
 
 
@@ -13,19 +16,32 @@ class MyGame(arcade.Window):
         
         super().__init__(width, height, title)
         self.set_mouse_visible(True)        
-        arcade.set_background_color(arcade.csscolor.BLUE)
-        self.player = arcade.Sprite(PLAYER, 1.5)
         
+    
+        self.player = arcade.Sprite(PLAYER, 1)
+        
+        self.view_bottom = 0
+        self.view_left = 0
+        self.background = "Water-1.png.png"
+
+
+
     def on_draw(self):
         arcade.start_render()
         self.player.draw()
 
    
     def setup(self):
-        self.coin.center_x = 50
-        self.coin.center_y = 50
-        self.player_sprite.center_x = 50
-        self.player_sprite.center_y = 50
+       
+        self.player.center_x = 500
+        self.player.center_y = 300
+    
+        self.background = arcade.load_texture("Water-1.png.png")
+
+
+
+
+
    
     def update(self, delta_time):
         self.player.update()
@@ -57,6 +73,7 @@ class MyGame(arcade.Window):
 
 def main():
     window = MyGame(WIDTH, HEIGHT, "Deez")
+    window.setup()
     arcade.run()
 main()
 
