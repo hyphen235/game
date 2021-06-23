@@ -1,13 +1,12 @@
 import arcade
 import random 
-import os
-
+import pymunk
 
 WIDTH = 1000
 HEIGHT = 600
 MOVEMENT_SPEED = 3
 PLAYER = "player(male).png" 
-#Player(male.png)
+#player(female.png)
 
 
 
@@ -17,34 +16,48 @@ class MyGame(arcade.Window):
         super().__init__(width, height, title)
         self.set_mouse_visible(True)        
         
-    
+        self.player_list = arcade.SpriteList()
+        
+        
+        
+
+        self.wall_list = arcade.SpriteList("Water-1.png.png", 0.2)
+        
         self.player = arcade.Sprite(PLAYER, 1)
         
+
+
+
         self.view_bottom = 0
         self.view_left = 0
-        self.background = "Water-1.png.png"
-
-
+        
+        arcade.set_background_color(arcade.color.LIGHT_BLUE)
 
     def on_draw(self):
         arcade.start_render()
         self.player.draw()
-
+        self.wall_list.draw()
    
-    def setup(self):
-       
+    def setup(self): 
+        
+        self.physics_engine = arcade.PhysicsEngineSimple(self.player, self.wall_list)
+        
         self.player.center_x = 500
         self.player.center_y = 300
-    
-        self.background = arcade.load_texture("Water-1.png.png")
-
+        self.wall_list.center_x = 500
+        self.wall_list.center_y = 500
+        
+        
+        
 
 
 
 
    
     def update(self, delta_time):
-        self.player.update()
+        self.physics_engine.update()
+        
+
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.A:
