@@ -2,7 +2,7 @@ import arcade
 
 import os
 
-SPRITE_SCALING_BOX = 0.5
+SPRITE_SCALING_BOX = 5
 SPRITE_SCALING_PLAYER = 0.3
 
 SCREEN_WIDTH = 1000
@@ -91,7 +91,7 @@ class GameView(arcade.View):
         self.player_sprite.center_y = SCREEN_HEIGHT/2
         self.player_list.append(self.player_sprite)
 
-        floor = arcade.Sprite("islandWIP.png", SPRITE_SCALING_ISLAND)
+        floor = arcade.Sprite("map.png", SPRITE_SCALING_ISLAND)
         floor.center_x = 300
         floor.center_y = 300
         self.floor_list.append(floor)
@@ -100,6 +100,7 @@ class GameView(arcade.View):
        
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.wall_list)
 
+        self.map = arcade.load_texture("map.png")
 
 
     
@@ -111,11 +112,13 @@ class GameView(arcade.View):
         
         self.wall_list.draw()
         
+        arcade.draw_lrwh_rectangle_textured(-700, -1200, 2200, 2200, self.map)
+
         changed = True
         
 
 
-        self.floor_list.draw()
+        
         self.player_list.draw()
         left_boundary = self.view_left + VIEWPORT_MARGIN
         if self.player_sprite.left < left_boundary:
