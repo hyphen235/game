@@ -2,7 +2,7 @@ import arcade
 
 import os
 
-SPRITE_SCALING_BOX = 5
+SPRITE_SCALING_BOX = 0.5
 SPRITE_SCALING_PLAYER = 0.3
 
 SCREEN_WIDTH = 1000
@@ -74,6 +74,8 @@ class GameView(arcade.View):
         arcade.set_viewport(0, SCREEN_WIDTH - 1, 0, SCREEN_HEIGHT - 1)
         arcade.set_background_color(arcade.color.LIGHT_BLUE)
 
+        self.map = arcade.load_texture("map.png")
+
         self.view_left = 0
         self.view_bottom = 0
 
@@ -91,16 +93,12 @@ class GameView(arcade.View):
         self.player_sprite.center_y = SCREEN_HEIGHT/2
         self.player_list.append(self.player_sprite)
 
-        floor = arcade.Sprite("map.png", SPRITE_SCALING_ISLAND)
-        floor.center_x = 300
-        floor.center_y = 300
-        self.floor_list.append(floor)
+       
 
         
        
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.wall_list)
 
-        self.map = arcade.load_texture("map.png")
 
 
     
@@ -112,13 +110,11 @@ class GameView(arcade.View):
         
         self.wall_list.draw()
         
-        arcade.draw_lrwh_rectangle_textured(-700, -1200, 2200, 2200, self.map)
-
         changed = True
         
+        arcade.draw_lrwh_rectangle_textured(-500, -1200, 2500, 2500, self.map)
 
-
-        
+        self.floor_list.draw()
         self.player_list.draw()
         left_boundary = self.view_left + VIEWPORT_MARGIN
         if self.player_sprite.left < left_boundary:
@@ -184,6 +180,10 @@ class GameView(arcade.View):
             self.left_pressed = False
         elif key == arcade.key.D:
             self.right_pressed = False
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        if button == MOUSE_BUTTON_LEFT:
+            print(self.get_view()[0]+x, self.get_view()[2]+y)
 
     def update(self, delta_time):
        
