@@ -1,3 +1,4 @@
+from PIL.Image import alpha_composite
 import arcade
 
 import os
