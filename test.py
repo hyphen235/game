@@ -1,5 +1,5 @@
 import arcade
-
+import random
 import os
 
 SPRITE_SCALING_BOX = 0.5
@@ -16,7 +16,8 @@ LEFT_FACING = 1
 SPRITE_SCALING_ISLAND = 0.5
 PLAYER_FRAMES = 8
 PLAYER_FRAMES_PER_TEXTURE = 8
- 
+SPRITE_SCALING_COIN = 1
+COIN_COUNT = 25
 
 
 def load_texture_pair(file_name):
@@ -58,6 +59,8 @@ class GameView(arcade.View):
         self.floor_list = None
         self.player_sprite = None
 
+        self.coin = None
+        self.score = 0
         
         self.physics_engine = None
 
@@ -67,6 +70,9 @@ class GameView(arcade.View):
         self.right_pressed = False
         self.up_pressed = False
         self.down_pressed = False
+
+        self.total_time = 0.0
+        self.output = "00:00:00"
 
 
     def setup(self):
@@ -84,7 +90,9 @@ class GameView(arcade.View):
         self.player_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
         self.floor_list = arcade.SpriteList()
-        
+        self.coin_list = arcade.SpriteList()
+        self.total_time = 0.0
+
         self.score = 0
 
        
@@ -94,11 +102,15 @@ class GameView(arcade.View):
         self.player_list.append(self.player_sprite)
 
        
-
+        for i in range(COIN_COUNT):
+            coin = arcade.Sprite("placeholder.png", SPRITE_SCALING_COIN)
         
+            coin.center_x = random.randrange(SCREEN_WIDTH)
+            coin.center_y = random.randrange(SCREEN_HEIGHT)
        
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.wall_list)
 
+        
 
 
     
@@ -110,17 +122,23 @@ class GameView(arcade.View):
         
         self.wall_list.draw()
         
+
+
+        output = f"Score: {self.score}"
+        arcade.draw_text(output, 10, 20, arcade.color.WHITE, 14)
+
         changed = True
         
         arcade.draw_lrwh_rectangle_textured(-500, -1200, 2500, 2500, self.map)
-
+        
         self.floor_list.draw()
+
         self.player_list.draw()
         left_boundary = self.view_left + VIEWPORT_MARGIN
         if self.player_sprite.left < left_boundary:
             self.view_left -= left_boundary - self.player_sprite.left
             changed = True
-
+        self.coin_list.draw()
        
         right_boundary = self.view_left + SCREEN_WIDTH - VIEWPORT_MARGIN
         if self.player_sprite.right > right_boundary:
@@ -150,7 +168,12 @@ class GameView(arcade.View):
                                 self.view_bottom,
                                 SCREEN_HEIGHT + self.view_bottom - 1)
     
-    
+        arcade.draw_text(self.output,
+                         SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50,
+                         arcade.color.WHITE, 100,
+                         anchor_x="center")
+
+
     def on_key_press(self, key, modifiers):
         """ Handle keypresses. In this case, we'll just count a 'space' as
         game over and advance to the game over view. """
@@ -187,6 +210,20 @@ class GameView(arcade.View):
 
     def update(self, delta_time):
        
+
+        self.total_time += delta_time
+        
+        minutes = int(self.total_time) // 60
+        seconds = int(self.total_time) % 60
+        seconds_100s = int((self.total_time - seconds) * 100)
+        self.output = f"{minutes:02d}:{seconds:02d}:{seconds_100s:02d}"
+
+        self.coin_list.update()
+
+        # Generate a list of all sprites that collided with the player.
+        coins_hit_list = arcade.check_for_collision_with_list(self.player_sprite,
+                                                              self.coin_list)
+
 
         self.player_sprite.change_x = 0
         self.player_sprite.change_y = 0
