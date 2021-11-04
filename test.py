@@ -37,8 +37,8 @@ class MenuView(arcade.View):
     def on_draw(self):
         """ Draw the menu """
         arcade.start_render()
-        arcade.draw_text("DELUGE", SCREEN_WIDTH/2, SCREEN_HEIGHT/2,
-                         arcade.color.WHITE, font_size=72, anchor_x="center")
+        arcade.draw_text("Click to start game, then press B to win!", SCREEN_WIDTH/2, SCREEN_HEIGHT/2,
+                         arcade.color.WHITE, font_size = 40, anchor_x="center")
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         """ Use a mouse press to advance to the 'game' view. """
@@ -53,16 +53,16 @@ class GameView(arcade.View):
     def __init__(self):
         super().__init__()
         self.background = None
-
+        self.map3_list = None
+        self.map2_list = None
         self.player_list = None
         self.wall_list = None
         self.win_list = None
         self.floor_list = None
         self.player_sprite = None
-        
         self.coin = None
         self.score = 0
-        
+        self.level = None
         self.physics_engine = None
 
         self.touch_cave = False
@@ -82,10 +82,12 @@ class GameView(arcade.View):
         arcade.set_background_color(arcade.color.LIGHT_BLUE)
 
         self.map = arcade.load_texture("map.png")
-       
+        self.map2 = arcade.load_texture("b.png")
+        self.map3 = arcade.load_texture("map3.png")
+
         self.view_left = 0
         self.view_bottom = 0
-
+        self.level = 1
         arcade.set_background_color(arcade.csscolor.LIGHT_BLUE)
         self.win_list = arcade.SpriteList()
         self.player_list = arcade.SpriteList()
@@ -100,13 +102,11 @@ class GameView(arcade.View):
         self.player_sprite.center_x = SCREEN_WIDTH/2
         self.player_sprite.center_y = SCREEN_HEIGHT/2
         self.player_list.append(self.player_sprite)
-
-       
-        for i in range(COIN_COUNT):
-            coin = arcade.Sprite("placeholder.png", SPRITE_SCALING_COIN)
+        self.map2_list = arcade.SpriteList()
+        self.map3_list = arcade.SpriteList()
         
-            coin.center_x = random.randrange(SCREEN_WIDTH)
-            coin.center_y = random.randrange(SCREEN_HEIGHT)
+        
+            
        
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.wall_list)
 
@@ -129,12 +129,15 @@ class GameView(arcade.View):
 
         changed = True
         
-        arcade.draw_lrwh_rectangle_textured(-500, -1200, 2500, 2500, self.map)
         
-        self.win_list.draw()
+        arcade.draw_lrwh_rectangle_textured(-500, -1200, 2500, 2500, self.map2)
+        arcade.draw_lrwh_rectangle_textured(-500, -1200, 2500, 2500, self.map)
+        arcade.draw_lrwh_rectangle_textured(-500, -1200, 2500, 2200, self.map3)
+        self.player_list.draw()
+        
         self.floor_list.draw()
         
-        self.player_list.draw()
+        
         left_boundary = self.view_left + VIEWPORT_MARGIN
         if self.player_sprite.left < left_boundary:
             self.view_left -= left_boundary - self.player_sprite.left
@@ -182,7 +185,7 @@ class GameView(arcade.View):
         if key == arcade.key.SPACE:
             game_over_view = GameOverView()
             self.window.show_view(game_over_view)
-
+            print('urmom')
         if key == arcade.key.W:
             self.up_pressed = True
         elif key == arcade.key.S:
@@ -191,7 +194,12 @@ class GameView(arcade.View):
             self.left_pressed = True
         elif key == arcade.key.D:
             self.right_pressed = True
-
+        elif key -- arcade.key.D:
+            arcade.draw_lrwh_rectangle_textured(-500, -1200, 2500, 2500, self.map)
+    
+        if key == arcade.key.B:
+            win_view = WinView()
+            self.window.show_view(win_view)
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
@@ -249,6 +257,18 @@ class Win(arcade.Sprite):
         self.center_x = x
         self.center_y = y
 
+    def update(self):
+        self.win_list = arcade.check_for_collision_with_list(self.player_sprite, self.win_sprite)
+        
+        if self.win_hit_list:
+            self.level += 1
+            self.setup(self.level)
+        
+        if self.level == 2:
+            print('loi')
+    
+
+
 
 class GameOverView(arcade.View):
     """ Class to manage the game over view """
@@ -257,6 +277,7 @@ class GameOverView(arcade.View):
         arcade.set_background_color(arcade.color.BLACK)
 
     def on_draw(self):
+        
         """ Draw the game over view """
         arcade.start_render()
         arcade.draw_text("Game Over - press ESCAPE to advance", SCREEN_WIDTH/2, SCREEN_HEIGHT/2,
@@ -267,8 +288,26 @@ class GameOverView(arcade.View):
         if key == arcade.key.ESCAPE:
             menu_view = MenuView()
             self.window.show_view(menu_view)
+            
 
+class WinView(arcade.View):
+    """ Class to manage the game over view """
+    def on_show(self):
+        """ Called when switching to this view"""
+        arcade.set_background_color(arcade.color.BLACK)
 
+    def on_draw(self):
+        
+        """ Draw the game over view """
+        arcade.start_render()
+        arcade.draw_text("Well done! you win!!!!!!", SCREEN_WIDTH/2, SCREEN_HEIGHT/2,
+                         arcade.color.WHITE, 30, anchor_x="center")
+
+    def on_key_press(self, key, _modifiers):
+        """ If user hits escape, go back to the main menu view """
+        if key == arcade.key.ESCAPE:
+            menu_view = MenuView()
+            self.window.show_view(menu_view)
 
 class Player(arcade.Sprite):
 
@@ -354,6 +393,8 @@ def main():
     
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, "bruh")
     menu_view = MenuView()
+
+
     window.show_view(menu_view)
     arcade.run()
 
