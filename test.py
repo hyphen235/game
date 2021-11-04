@@ -56,10 +56,10 @@ class GameView(arcade.View):
 
         self.player_list = None
         self.wall_list = None
-
+        self.win_list = None
         self.floor_list = None
         self.player_sprite = None
-
+        
         self.coin = None
         self.score = 0
         
@@ -82,21 +82,20 @@ class GameView(arcade.View):
         arcade.set_background_color(arcade.color.LIGHT_BLUE)
 
         self.map = arcade.load_texture("map.png")
-
+       
         self.view_left = 0
         self.view_bottom = 0
 
         arcade.set_background_color(arcade.csscolor.LIGHT_BLUE)
-        
+        self.win_list = arcade.SpriteList()
         self.player_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
         self.floor_list = arcade.SpriteList()
         self.coin_list = arcade.SpriteList()
         self.total_time = 0.0
-
         self.score = 0
-
-       
+        self.win_sprite = Win(500, 1000)
+        self.win_list.append(self.win_sprite)
         self.player_sprite = Player()
         self.player_sprite.center_x = SCREEN_WIDTH/2
         self.player_sprite.center_y = SCREEN_HEIGHT/2
@@ -132,8 +131,9 @@ class GameView(arcade.View):
         
         arcade.draw_lrwh_rectangle_textured(-500, -1200, 2500, 2500, self.map)
         
+        self.win_list.draw()
         self.floor_list.draw()
-
+        
         self.player_list.draw()
         left_boundary = self.view_left + VIEWPORT_MARGIN
         if self.player_sprite.left < left_boundary:
@@ -170,8 +170,8 @@ class GameView(arcade.View):
                                 SCREEN_HEIGHT + self.view_bottom - 1)
     
         arcade.draw_text(self.output,
-                         SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50,
-                         arcade.color.WHITE, 100,
+                         self.player_sprite.center_x, self.player_sprite.center_y + 50,
+                         arcade.color.WHITE, 25,
                          anchor_x="center")
 
 
@@ -242,6 +242,12 @@ class GameView(arcade.View):
         self.player_sprite.update_animation()
         self.physics_engine.update()
         
+
+class Win(arcade.Sprite):
+    def __init__(self, x, y):
+        super().__init__("placeholder.png", 1)
+        self.center_x = x
+        self.center_y = y
 
 
 class GameOverView(arcade.View):
